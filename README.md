@@ -1,4 +1,4 @@
-# quic
+# quic 🐇
 Copy faster by copying less
 
 *quic was written as a part of the Operating System course at DIT – UoA. Credits to the professor of the course at the time, [Alex Delis](https://www.alexdelis.eu/).*
