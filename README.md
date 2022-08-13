@@ -29,7 +29,7 @@ In any other case, we assume that files S and D, with their respective [i-nodes]
 
 Regarding links (symbolic or hard), the behavior of quic changes according to the user’s preference..
 -	For symbolic links. If the user chooses to preserve links, the same symbolic links are created in the destination, (only pointing to the destination if the link happens to point in the source). Otherwise, If the user does not want to preserve links, the regular files they point to are copied to the destination.
--	Hard links are created only if the user chooses to preserve links, this ensures that their contents are not copied more than one time *(ex if i-nodes a1 and a2 point to the same source file, in the destination you will find i-nodes b1 and b2 pointing to the destination same file)*. In any other case hard links are copied as regular files.
+-	Hard links *(files with tha name inode with st_nlink > 1)* are created only if the user chooses to preserve links, this ensures that their contents are not copied more than one time *(ex if i-nodes a1 and a2 point to the same source file, in the destination you will find i-nodes b1 and b2 pointing to the destination same file)*. In any other case hard links are ignored.
 
 # Compilation:
 
