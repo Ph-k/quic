@@ -1,3 +1,4 @@
+
 # quic 🐇
 Copy faster by copying less
 
@@ -7,9 +8,35 @@ quic (quick incremental copy) is a linux/unix program that copies files like cp,
 
 For example, let’s assume that you have a hierarchy of files/a directory that you frequently backup to an external drive. At the time of your first backup, quic will copy all the files of the hierarchy to the external drive (just like cp -r):
 ```
+$quic ./AI ./Usb-Drive/Back-Up/AI
+created directory ./Usb-Drive/Back-Up/AI
+./AI/csp.py
+created directory ./Usb-Drive/Back-Up/AI/rlfap
+./AI/rlfap/var2-f24.txt
+./AI/rlfap/ctr2-f25.txt
+./AI/rlfap/dom2-f24.txt
+./AI/rlfap/dom2-f25.txt
+./AI/rlfap/ctr2-f24.txt
+./AI/rlfap/var2-f25.txt
+./AI/myCSP.py
+./AI/utils.py
+./AI/search.py
+./AI/main.py
+there are 13 files/directories in the hierarchy
+number of entities copied is 13
+copied 176096 bytes in 0.120000sec at 1467466.666667 bytes/sec
 ```
-It is the next time you backup your files, that the intelligence of quic comes into play. By taking advantage of the fact that only the modified or newly added files need to be copied *(in contrast cp -r would copy all the files, including identical ones)*. 
+The next time you backup your files, you only actually need to copy the modified *(assume: myCSP.py, var2-f24.txt, dom2-f24.txt, ctr2-f24.txt in the example)* or newly added files *(notes.txt)*. And that is where the intelligence of quic comes into play, gaining time by skipping non-modified/old files  (in contrast cp -r would copy all the files, including identical ones).
 ```
+$quic ./AI ./Usb-Drive/Back-Up/AI
+./AI/rlfap/var2-f24.txt
+./AI/rlfap/dom2-f24.txt
+./AI/rlfap/ctr2-f24.txt
+./AI/myCSP.py
+./AI/notes.txt
+there are 14 files/directories in the hierarchy
+number of entities copied is 5
+copied 26228 bytes in 0.070000sec at 374685.714286 bytes/sec
 ```
 Thus, it’s obvious that quic will take less time to copy your files, since it doesn’t bother to re-copy identical files from the source to the destination.
 
@@ -27,9 +54,10 @@ Using information from the [i-nodes](https://en.wikipedia.org/wiki/Inode), we as
 
 In any other case, we assume that files S and D, with their respective [i-nodes](https://en.wikipedia.org/wiki/Inode) are “**identical**”, and thus are not re-copied.
 
+### How are [links](https://www.linux.com/topic/desktop/understanding-linux-links/) handled ?
 Regarding links (symbolic or hard), the behavior of quic changes according to the user’s preference..
 -	For symbolic links. If the user chooses to preserve links, the same symbolic links are created in the destination, (only pointing to the destination if the link happens to point in the source). Otherwise, If the user does not want to preserve links, the regular files they point to are copied to the destination.
--	Hard links *(files with tha name inode with st_nlink > 1)* are created only if the user chooses to preserve links, this ensures that their contents are not copied more than one time *(ex if i-nodes a1 and a2 point to the same source file, in the destination you will find i-nodes b1 and b2 pointing to the destination same file)*. In any other case hard links are ignored.
+-	Hard links *(files with the same inode, with st_nlink > 1)* are created only if the user chooses to preserve links, this ensures that their contents are not copied more than one time *(ex if i-nodes a1 and a2 point to the same source file, in the destination you will find i-nodes b1 and b2 pointing to the destination same file)*. In any other case hard links are ignored.
 
 # Compilation:
 
@@ -48,3 +76,25 @@ The program can be executed from a cli as ` ./quic -v -d -l origindir destdir`  
 - When the`-d` (delete) flag is used, files that do not exist in the origindir will not exist in the destdir, they are deleted.
 
 - `-l` (links) flag is used to tell the program to preserve links, the behavior of this flag has been described above.
+
+
+# Important notes:
+
+
+- There are situations when symbolic links can create circles *(ex, folder DIR has a symbolic link pointing to himself)*. This can result to quic entering an infinite loop when not using the `-l` flag. To avoid these infinite loops the copied files are saved in hastable, with the contents of circles beeing copied once.
+
+- For convenience, whenever this documentation refers to hard links it refers **only** to two or more files with the same inode, which using the syscall `stat` results to an st_nlink field with a value greater than two.
+
+- Note that at the moment the destination path needs to exists in order for quic to work *(except when copying a directory, the destination directory might not exist)*. quic will check the existence of the destination path, and if it does not exist, inform the user with an error message.
+
+
+- If quic is ran without the `-l` flag, and then re-ran with it:
+  - First execution without `-l` flag: soft links are copied as files, avoiding infinite circles. Hard links are ignored.
+
+  - Second execution with `-l` flag: The destination files which were copied from soft links are replaced with their respective soft links. Hard links will now be copied
+
+- If quic is ran with the `-l` flag, and then re-ran or without it:
+
+  - First execution with `-l` flag: soft links are copied as soft links. Hard links are also copied.
+  
+  - Second execution without `-l` flag: It was chosen not to change the structure of the destination, since all the possible information is already copied to the destination.
