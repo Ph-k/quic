@@ -54,14 +54,14 @@ Using information from the [i-nodes](https://en.wikipedia.org/wiki/Inode), we as
 
 In any other case, we assume that files S and D, with their respective [i-nodes](https://en.wikipedia.org/wiki/Inode) are “**identical**”, and thus are not re-copied.
 
-### How are [links](https://www.linux.com/topic/desktop/understanding-linux-links/) handled ?
+### How are [links](https://www.linux.com/topic/desktop/understanding-linux-links/) handled?
 Regarding links (symbolic or hard), the behavior of quic changes according to the user’s preference..
 -	For symbolic links. If the user chooses to preserve links, the same symbolic links are created in the destination, (only pointing to the destination if the link happens to point in the source). Otherwise, If the user does not want to preserve links, the regular files they point to are copied to the destination.
--	Hard links *(files with the same inode, with st_nlink > 1)* are created only if the user chooses to preserve links, this ensures that their contents are not copied more than one time *(ex if i-nodes a1 and a2 point to the same source file, in the destination you will find i-nodes b1 and b2 pointing to the destination same file)*. In any other case hard links are ignored.
+-	Hard links *(files with the same inode, with st_nlink > 1)* are created only if the user chooses to preserve links, this ensures that their contents are not copied more than one time (ex if i-nodes a1 and a2 point to the same source file, in the destination you will find i-nodes b1 and b2 pointing to the same destination file). In any other case hard links are ignored.
 
 # Compilation:
 
-By typing `make` on a tty in the source code directory, all the necessary programs will be compiled, creating all the necessary executables. The only requirement is a linux/unix machine running a stable version of the gcc compiler. *The program worked fine on Debian based distros.*
+By typing `make` on a tty in the source code directory, all the source files will be compiled, creating all the necessary executables. The only requirement is a linux/unix machine running a stable version of the gcc compiler. *The program worked fine on Debian based distros.*
 
 # Usage
 
@@ -69,19 +69,19 @@ The program can be executed from a cli as ` ./quic -v -d -l origindir destdir`  
 
 - `quic` is the executable of the project
 
-- `origindir` is the source path and `destdir` the destination path
+- `origindir` is the source path and `destdir` is the destination path
 
 - `-v` is the verbose flag. It makes the program output more diagnostic information regarding the copying/deletion of files.
 
-- When the`-d` (delete) flag is used, files that do not exist in the origindir will not exist in the destdir, they are deleted.
+- When the `-d` (delete) flag is used, files that do not exist in the origindir will not exist in the destdir, in other words they are deleted.
 
-- `-l` (links) flag is used to tell the program to preserve links, the behavior of this flag has been described above.
+- `-l` (links) flag is used to tell the program to preserve links, the behavior of this flag has been described above in [How are links handled?](https://github.com/Ph-k/quic#how-are-links-handled).
 
 
 # Important notes:
 
 
-- There are situations when symbolic links can create circles *(ex, folder DIR has a symbolic link pointing to himself)*. This can result to quic entering an infinite loop when not using the `-l` flag. To avoid these infinite loops the copied files are saved in hastable, with the contents of circles beeing copied once.
+- There are situations when symbolic links can create circles *(ex, folder DIR has a symbolic link pointing to himself)*. This can result to quic entering an infinite loop when not using the `-l` flag. To avoid these infinite loops the copied files are saved in hashtable, with the contents of circles beeing copied once.
 
 - For convenience, whenever this documentation refers to hard links it refers **only** to two or more files with the same inode, which using the syscall `stat` results to an st_nlink field with a value greater than one.
 
