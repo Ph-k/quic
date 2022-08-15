@@ -81,11 +81,11 @@ The program can be executed from a cli as ` ./quic -v -d -l origindir destdir`  
 # Important notes:
 
 
-- There are situations when symbolic links can create circles *(ex, folder DIR has a symbolic link pointing to himself)*. This can result to quic entering an infinite loop when not using the `-l` flag. To avoid these infinite loops the copied files are saved in hashtable, with the contents of circles beeing copied once.
+- There are situations when symbolic links can create circles *(ex, folder DIR has a symbolic link pointing to himself)*. This can result to quic entering an infinite loop when not using the `-l` flag. To avoid these infinite loops the copied files are saved in a hashtable, with the contents of circles beeing copied once.
 
 - For convenience, whenever this documentation refers to hard links it refers **only** to two or more files with the same inode, which using the syscall `stat` results to an st_nlink field with a value greater than one.
 
-- Note that currently the destination path needs to exist for quic to work *(except when copying a directory, then the destination directory might not exist)*. quic will check the existence of the destination path and inform the user with an error message if it does not exist.
+- Note that currently, the destination path needs to exist in order for quic to work *(except when copying a directory, then the destination directory might not exist)*. quic will check the existence of the destination path and inform the user with an error message if it does not exist.
 
 
 - If quic is ran without the `-l` flag, and then re-ran with it:
@@ -93,7 +93,7 @@ The program can be executed from a cli as ` ./quic -v -d -l origindir destdir`  
 
   - Second execution with `-l` flag: The destination files which were copied from soft links are replaced with their respective soft links. Hard links will now be copied
 
-- If quic is ran with the `-l` flag, and then re-ran or without it:
+- If quic is ran with the `-l` flag, and then re-ran without it:
 
   - First execution with `-l` flag: soft links are copied as soft links. Hard links are also copied.
   
@@ -101,10 +101,10 @@ The program can be executed from a cli as ` ./quic -v -d -l origindir destdir`  
   
 # Source code files overview:
 
-`quic.c`: Contains the main function which reads the command line arguments, initializes all the necessary data structures and variables of the program, and then starts the recursive copying of all the directories/files included in the source path using functions from the copiers module. After that, it prints some information about the whole procedure, de-allocates all the dynamically allocated memory, and terminates the program
+- `quic.c`: Contains the main function which reads the command line arguments, initializes all the necessary data structures and variables of the program, and then starts the recursive copying of all the directories/files included in the source path using functions from the copiers module. After that, it prints some information about the whole procedure, de-allocates all the dynamically allocated memory, and terminates the program
 
-` copiers.c & copiers.h`: The only functions witch the user of the module would want to use are the copyFile() and copyLocation() *(copies hierarchies/directories, not just single files)*. All the other functions are hidden in the module and are just used from the two mentioned functions.
+- ` copiers.c` & `copiers.h`: The only functions witch the user of the module would want to use are the copyFile() and copyLocation() *(copies hierarchies/directories, not just single files)*. All the other functions are hidden in the module and are just used from the two mentioned functions.
 
-`utilities.c` & `utilities.h`: Here you will find several utility functions used to abstract some string manipulation, and access to information about copied inodes routines.
+- `utilities.c` & `utilities.h`: Here you will find several utility functions used to abstract some string manipulation, and access to information about copied inodes routines.
 
-`HashTable.c` & `HashTable.h`: As you might have already noticed there are occasions where quic needs to know if a file has already been copied (circles when not using the `-l` flag). For this purpose a data structure is needed, and since hash tables can provide us with insertion and access of this information in O(1), it was chosen.
+- `HashTable.c` & `HashTable.h`: As you might have already noticed there are occasions where quic needs to know if a file has already been copied (circles when not using the `-l` flag). For this purpose a data structure is needed, and since hash tables can provide us with insertion and access of this information in O(1), it was chosen.
