@@ -4,7 +4,7 @@ Copy faster by copying less
 
 *quic was written as a part of the Operating System course at DIT – UoA. Credits to the professor of the course at the time, [Alex Delis](https://www.alexdelis.eu/).*
 # About this project:
-quic (quick incremental copy) is a linux/unix program that copies files like cp, but with the difference that it copies only the necessary files. 
+quic (**qu**ick **i**ncremental **c**opy) is a linux/unix program that copies files like cp, but with the difference that it copies only the necessary files. 
 
 For example, let’s assume that you have a hierarchy of files/a directory that you frequently backup to an external drive. At the time of your first backup, quic will copy all the files of the hierarchy to the external drive (just like cp -r):
 ```
@@ -83,9 +83,9 @@ The program can be executed from a cli as ` ./quic -v -d -l origindir destdir`  
 
 - There are situations when symbolic links can create circles *(ex, folder DIR has a symbolic link pointing to himself)*. This can result to quic entering an infinite loop when not using the `-l` flag. To avoid these infinite loops the copied files are saved in hastable, with the contents of circles beeing copied once.
 
-- For convenience, whenever this documentation refers to hard links it refers **only** to two or more files with the same inode, which using the syscall `stat` results to an st_nlink field with a value greater than two.
+- For convenience, whenever this documentation refers to hard links it refers **only** to two or more files with the same inode, which using the syscall `stat` results to an st_nlink field with a value greater than one.
 
-- Note that at the moment the destination path needs to exists in order for quic to work *(except when copying a directory, the destination directory might not exist)*. quic will check the existence of the destination path, and if it does not exist, inform the user with an error message.
+- Note that currently the destination path needs to exist for quic to work *(except when copying a directory, then the destination directory might not exist)*. quic will check the existence of the destination path and inform the user with an error message if it does not exist.
 
 
 - If quic is ran without the `-l` flag, and then re-ran with it:
@@ -97,4 +97,14 @@ The program can be executed from a cli as ` ./quic -v -d -l origindir destdir`  
 
   - First execution with `-l` flag: soft links are copied as soft links. Hard links are also copied.
   
-  - Second execution without `-l` flag: It was chosen not to change the structure of the destination, since all the possible information is already copied to the destination.
+  - Second execution without `-l` flag: It was chosen not to change the structure of the destination, since all the necessary information is already copied to the destination.
+  
+# Source code files overview:
+
+`quic.c`: Contains the main function which reads the command line arguments, initializes all the necessary data structures and variables of the program, and then starts the recursive copying of all the directories/files included in the source path using functions from the copiers module. After that, it prints some information about the whole procedure, de-allocates all the dynamically allocated memory, and terminates the program
+
+` copiers.c & copiers.h`: The only functions witch the user of the module would want to use are the copyFile() and copyLocation() *(copies hierarchies/directories, not just single files)*. All the other functions are hidden in the module and are just used from the two mentioned functions.
+
+`utilities.c` & `utilities.h`: Here you will find several utility functions used to abstract some string manipulation, and access to information about copied inodes routines.
+
+`HashTable.c` & `HashTable.h`: As you might have already noticed there are occasions where quic needs to know if a file has already been copied (circles when not using the `-l` flag). For this purpose a data structure is needed, and since hash tables can provide us with insertion and access of this information in O(1), it was chosen.
