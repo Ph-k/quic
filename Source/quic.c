@@ -14,6 +14,9 @@
 #include "HashTable.h"
 #include "utilities.h"
 
+#define PATH_HASH_SIZE 100
+#define H_LINKS_HASH_SIZE 50
+
 hashTable* pathHashTable, *copiedHardLinksHT;
 const char *Sroot,*Droot;
 
@@ -64,8 +67,8 @@ int main(int argc, char **argv){
 	free(beginning);
 
 	//Initializing the hashtables needed to keep information...
-	pathHashTable = newHashTable(100);//...about copied forlders in order to avoid loops and...
-	copiedHardLinksHT = newHashTable(50);//...about copied hardlinks in order to trasfer the hardlinks as requested
+	pathHashTable = newHashTable(PATH_HASH_SIZE);//...about copied forlders in order to avoid loops and...
+	copiedHardLinksHT = newHashTable(H_LINKS_HASH_SIZE);//...about copied hardlinks in order to trasfer the hardlinks as requested
 
 	unsigned int entitiesCounter=0,entitiesCopied=0;
 	unsigned long int bytesCopied=0;

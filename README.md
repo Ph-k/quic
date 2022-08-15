@@ -107,4 +107,4 @@ The program can be executed from a cli as ` ./quic -v -d -l origindir destdir`  
 
 - `utilities.c` & `utilities.h`: Here you will find several utility functions used to abstract some string manipulation, and access to information about copied inodes routines.
 
-- `HashTable.c` & `HashTable.h`: As you might have already noticed there are occasions where quic needs to know if a file has already been copied (circles when not using the `-l` flag). For this purpose a data structure is needed, and since hash tables can provide us with insertion and access of this information in O(1), it was chosen.
+- `HashTable.c` & `HashTable.h`: As you might have already noticed there are occasions where quic needs to know if a file has already been copied (circles when not using the `-l` flag). For this purpose a data structure is needed, and since hash tables can provide us with insertion and access of this information in O(1), it was chosen. *You can change the size of the hashtable from the defines `PATH_HASH_SIZE`, `H_LINKS_HASH_SIZE` in quic.c*
